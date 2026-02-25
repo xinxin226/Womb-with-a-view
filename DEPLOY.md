@@ -116,8 +116,8 @@ That’s your deployed app.
 Replace `YOUR-APP-URL` with the URL Render gave you (e.g. `https://womb-with-a-view-xxxx.onrender.com`).
 
 - **Host (you run the game):**  
-  **YOUR-APP-URL/host.html**  
-  Example: `https://womb-with-a-view-xxxx.onrender.com/host.html`
+  **YOUR-APP-URL/host**  
+  Example: `https://womb-with-a-view-xxxx.onrender.com/host`
 
 - **Participants (players join here):**  
   **YOUR-APP-URL/**  

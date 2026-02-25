@@ -7,15 +7,22 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Clean URLs (no .html) — work on any device (Wi‑Fi, cellular, etc.)
+app.get('/host', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'host.html'));
+});
+app.get('/host.html', (req, res) => res.redirect(301, '/host'));
+app.get('/index.html', (req, res) => res.redirect(301, '/'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Part 3 "What in the womb" images (slide 4-14 from PPT)
+// Part 3 "What in the womb" images (slide 4-15 from PPT)
 const PART3_IMAGES = [
   'image18.png', 'image5.png', 'image16.png', 'image10.png', 'image6.png',
-  'image7.png', 'image19.png', 'image14.png', 'image17.png', 'image12.png', 'image11.png'
+  'image7.png', 'image19.png', 'image14.png', 'image17.png', 'image12.png', 'image11.png',
+  'image20.png'
 ];
 
-// Overlay box position/size as % of image (from PowerPoint slide coords)
+// Overlay box position/size as % of image (from PowerPoint slide coords) — 100% opaque to cover yellow text
 const PART3_OVERLAYS = [
   { left: 3.6, top: 11.15, width: 15, height: 11.8 },
   { left: 3.35, top: 10.18, width: 15.08, height: 11.79 },
@@ -27,7 +34,8 @@ const PART3_OVERLAYS = [
   { left: 0.74, top: 11.59, width: 24.34, height: 11.11 },
   { left: 2.32, top: 11.88, width: 24.34, height: 11.27 },
   { left: 2.32, top: 10.49, width: 24.34, height: 11.31 },
-  { left: 1.53, top: 9.37, width: 24.34, height: 11.58 }
+  { left: 1.53, top: 9.37, width: 24.34, height: 11.58 },
+  { left: 30.7, top: 32.9, width: 24.1, height: 10.0 }
 ];
 
 const NOSE_OPTIONS = [
@@ -421,5 +429,5 @@ function broadcastPlayerStates(game) {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Womb with a View running at http://localhost:${PORT}`);
-  console.log(`Host: open /host.html and create a game. Players: open / on your phone and enter the code.`);
+  console.log('Host: /host  —  Participants: / (root URL)');
 });

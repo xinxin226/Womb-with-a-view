@@ -10,7 +10,7 @@ npm install
 npm start
 ```
 
-- **Host:** Open [http://localhost:3000/host.html](http://localhost:3000/host.html), click "Create game", and share the 6-letter code.
+- **Host:** Open http://localhost:3000/host (or your deployed URL + /host).
 - **Players:** On their phones, open `http://<your-ip>:3000`, enter the code and their name, then join.
 
 To find your IP (so others on the same Wi‑Fi can join): run `ipconfig getifaddr en0` (Mac) or check your router.
