@@ -111,7 +111,8 @@
     <h1>What kind of creature are we parenting?</h1>
     <img class="question-img" src="/images/image9.png" alt="Creature" />
     <p class="timer" id="part1Timer"></p>
-    <p class="submitted-msg" id="part1Submitted" style="display:none">Your guess has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p class="hint">You can change your answer until the question closes or time is up.</p>
+    <p class="submitted-msg" id="part1Submitted" style="display:none">Submitted. Edit and tap Submit again to change your answer.</p>
     <p>Type your guess below.</p>
     <input type="text" id="part1Input" placeholder="Your guess (up to 120 characters)" maxlength="120" />
     <button id="btnPart1Submit">Submit</button>
@@ -134,7 +135,8 @@
       <div class="nose-option"><img src="/images/image4.png" alt="D" /><span>D. Tiny boop</span></div>
     </div>
     <p class="timer" id="part2Timer"></p>
-    <p class="submitted-msg" id="part2Submitted" style="display:none">Your choice has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p class="hint">You can change your answer until the question closes or time is up.</p>
+    <p class="submitted-msg" id="part2Submitted" style="display:none">Submitted. Tap a different option to change your answer.</p>
     <p>Choose one:</p>
     <div class="options-grid" id="part2Options"></div>
     <p class="waiting" id="part2Closed" style="display:none">Question closed. Waiting for results…</p>
@@ -159,7 +161,8 @@
       <div class="part3-overlay" id="part3Overlay"></div>
     </div>
     <p class="timer" id="part3Timer"></p>
-    <p class="submitted-msg" id="part3Submitted" style="display:none">Your guess has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p class="hint">You can change your answer until the question closes or time is up.</p>
+    <p class="submitted-msg" id="part3Submitted" style="display:none">Submitted. Edit and tap Submit again to change your answer.</p>
     <p>Guess the body part (the covered area).</p>
     <input type="text" id="part3Input" placeholder="Your guess" maxlength="200" />
     <button id="btnPart3Submit">Submit</button>
@@ -327,10 +330,6 @@
     };
 
     document.getElementById('btnPart3Submit').onclick = () => {
-      const text = (document.getElementById('part3Input').value || '').trim();
-      socket.emit('player:part3', { text });
-    };
-    document.getElementById('part3Input').oninput = () => {
       const text = (document.getElementById('part3Input').value || '').trim();
       socket.emit('player:part3', { text });
     };

@@ -265,6 +265,18 @@ io.on('connection', (socket) => {
         if (p) p.points = (p.points || 0) + 1;
       }
     });
+    // After awarding, automatically advance to next image (or part3_results if last)
+    const idx = game.part3.imageIndex;
+    if (idx >= PART3_IMAGES.length - 1) {
+      game.phase = 'part3_results';
+      game.part3.revealed = true;
+    } else {
+      game.part3.imageIndex = idx + 1;
+      game.part3.revealed = false;
+      game.part3.correctPlayerIds = new Set();
+      game.part3.startedAt = Date.now();
+      game.phase = 'part3';
+    }
     io.to(game.code).emit('game:state', serializeGameForHost(game));
     broadcastPlayerStates(game);
   });

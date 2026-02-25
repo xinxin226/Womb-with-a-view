@@ -138,19 +138,16 @@
       <div class="part3-overlay" id="part3Overlay"></div>
     </div>
     <p class="timer" id="part3Timer"></p>
-    <p>Participants guess on their phones. Reveal the answer, then close to review and award points.</p>
-    <button id="btnRevealPart3">Reveal answer now</button>
-    <button id="btnRevealPart3_3s" class="secondary">Reveal in 3 seconds</button>
-    <button id="btnClosePart3" class="secondary">Close question & review answers</button>
+    <p>Participants guess on their phones. When ready, close the question — the answer will be revealed to everyone, then you review and award points.</p>
+    <button id="btnClosePart3">Close question & review answers</button>
     <div class="reset-row"><button id="btnResetPart3" class="secondary">Reset to lobby</button></div>
   </div>
 
   <div id="part3Review" class="screen">
     <h1>Part 3 — Select correct answers</h1>
-    <p>Check the answers that are correct. Those players get 1 point.</p>
+    <p>Check the answers that are correct. Those players get 1 point. After you award points, the next image will show automatically.</p>
     <ul class="answers-list" id="part3Answers"></ul>
     <button id="btnPart3Award">Award points to selected</button>
-    <button id="btnPart3Next" class="secondary">Next image</button>
     <div class="reset-row"><button id="btnResetPart3Review" class="secondary">Reset to lobby</button></div>
   </div>
 
@@ -285,24 +282,11 @@
     document.getElementById('btnToPart2').onclick = () => socket.emit('host:startPart2');
     document.getElementById('btnClosePart2').onclick = () => socket.emit('host:closePart2');
     document.getElementById('btnToPart3').onclick = () => socket.emit('host:startPart3');
-    let revealTimeout = null;
-    document.getElementById('btnRevealPart3').onclick = () => {
-      if (revealTimeout) clearTimeout(revealTimeout);
-      socket.emit('host:revealPart3');
-    };
-    document.getElementById('btnRevealPart3_3s').onclick = () => {
-      if (revealTimeout) clearTimeout(revealTimeout);
-      revealTimeout = setTimeout(() => { socket.emit('host:revealPart3'); revealTimeout = null; }, 3000);
-    };
-    document.getElementById('btnClosePart3').onclick = () => {
-      if (revealTimeout) clearTimeout(revealTimeout);
-      socket.emit('host:closePart3Question');
-    };
+    document.getElementById('btnClosePart3').onclick = () => socket.emit('host:closePart3Question');
     document.getElementById('btnPart3Award').onclick = () => {
       const ids = Array.from(document.querySelectorAll('#part3Answers input:checked')).map(cb => cb.dataset.playerId);
       socket.emit('host:setPart3Correct', { playerIds: ids });
     };
-    document.getElementById('btnPart3Next').onclick = () => socket.emit('host:nextPart3Image');
     document.getElementById('btnBackLobby').onclick = emitReset;
 
     socket.on('game:code', (data) => { state.code = data.code; });
