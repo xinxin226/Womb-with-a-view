@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#1a0a14" />
+  <title>Womb with a View</title>
+  <style>
+    :root {
+      --bg: #1a0a14;
+      --card: #2d1522;
+      --accent: #e8a0b8;
+      --text: #f5e6ec;
+      --muted: #9b7a85;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      padding: 1rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    h1 { font-size: 1.35rem; color: var(--accent); margin: 0 0 0.75rem; }
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--card);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+      margin: 0.5rem 0;
+    }
+    input::placeholder { color: var(--muted); }
+    button, .btn {
+      display: block;
+      width: 100%;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.5rem 0;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .options-grid { display: grid; gap: 0.75rem; margin: 1rem 0; }
+    .options-grid button { margin: 0; }
+    .options-grid button.secondary { background: var(--card); color: var(--accent); border: 2px solid var(--accent); }
+    .options-grid button.selected { background: #c07090; border-color: var(--accent); }
+    .part3-img-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; margin: 1rem 0; }
+    .part3-img-wrap img { width: 100%; display: block; }
+    .part3-overlay {
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      border-radius: 8px;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+    .part3-overlay.revealed { opacity: 0; }
+    .timer { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
+    .submitted-msg { color: var(--accent); font-size: 0.9rem; margin: 0.5rem 0; }
+    .hint { color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
+    .connection-status { font-size: 0.85rem; margin: 0.5rem 0; padding: 0.5rem; border-radius: 8px; }
+    .connection-status.connected { background: rgba(0,128,0,0.2); color: #9ee; }
+    .connection-status.disconnected { background: rgba(200,80,80,0.2); color: #faa; }
+    .connection-status.connecting { color: var(--muted); }
+    .answers-list { list-style: none; padding: 0; margin: 1rem 0; }
+    .answers-list li {
+      background: var(--card);
+      padding: 0.75rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+    }
+    .bar-chart { margin: 1rem 0; }
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+    .bar-row label { flex: 0 0 100px; font-size: 0.9rem; }
+    .bar-fill { height: 22px; background: var(--accent); border-radius: 4px; min-width: 20px; transition: width 0.3s; }
+    .points-badge { background: var(--accent); color: var(--bg); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; }
+    .waiting { color: var(--muted); font-size: 0.95rem; margin: 1rem 0; }
+    .question-img { width: 100%; max-width: 400px; border-radius: 12px; margin: 0.75rem 0; display: block; }
+    .nose-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+    .nose-option { text-align: center; }
+    .nose-option img { width: 100%; border-radius: 10px; display: block; margin-bottom: 0.25rem; }
+    .nose-option span { font-size: 0.9rem; font-weight: 600; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div id="join" class="screen active">
+    <h1>Womb with a View</h1>
+    <p id="connectionStatus" class="connection-status connecting">Connecting to server…</p>
+    <p>Enter your name to join. No code needed.</p>
+    <p class="hint">You can join now and wait in the lobby until the host starts the game.</p>
+    <input type="text" id="joinName" placeholder="Your name" maxlength="30" />
+    <button id="btnJoin">Join game</button>
+  </div>
+
+  <div id="lobby" class="screen">
+    <h1>You're in!</h1>
+    <p class="waiting">Waiting for the host to start Part 1…</p>
+  </div>
+
+  <div id="part1" class="screen">
+    <h1>What kind of creature are we parenting?</h1>
+    <img class="question-img" src="/images/image9.png" alt="Creature" />
+    <p class="timer" id="part1Timer"></p>
+    <p class="submitted-msg" id="part1Submitted" style="display:none">Your guess has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p>Type your guess below.</p>
+    <input type="text" id="part1Input" placeholder="Your guess" maxlength="200" />
+    <button id="btnPart1Submit">Submit</button>
+    <p class="waiting" id="part1Closed" style="display:none">Question closed. Waiting for results…</p>
+  </div>
+
+  <div id="part1Results" class="screen">
+    <h1>Part 1 — All answers</h1>
+    <img class="question-img" src="/images/image9.png" alt="Creature" />
+    <ul class="answers-list" id="part1Answers"></ul>
+    <p class="waiting">Host will continue to Part 2.</p>
+  </div>
+
+  <div id="part2" class="screen">
+    <h1>Who NOSE the nose?</h1>
+    <div class="nose-grid" id="part2NoseImages">
+      <div class="nose-option"><img src="/images/image15.png" alt="A" /><span>A. Pointy</span></div>
+      <div class="nose-option"><img src="/images/image13.png" alt="B" /><span>B. Whoville</span></div>
+      <div class="nose-option"><img src="/images/image8.png" alt="C" /><span>C. Rounded</span></div>
+      <div class="nose-option"><img src="/images/image4.png" alt="D" /><span>D. Tiny boop</span></div>
+    </div>
+    <p class="timer" id="part2Timer"></p>
+    <p class="submitted-msg" id="part2Submitted" style="display:none">Your choice has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p>Choose one:</p>
+    <div class="options-grid" id="part2Options"></div>
+    <p class="waiting" id="part2Closed" style="display:none">Question closed. Waiting for results…</p>
+  </div>
+
+  <div id="part2Results" class="screen">
+    <h1>Part 2 — Results</h1>
+    <div class="nose-grid">
+      <div class="nose-option"><img src="/images/image15.png" alt="A" /><span>A. Pointy</span></div>
+      <div class="nose-option"><img src="/images/image13.png" alt="B" /><span>B. Whoville</span></div>
+      <div class="nose-option"><img src="/images/image8.png" alt="C" /><span>C. Rounded</span></div>
+      <div class="nose-option"><img src="/images/image4.png" alt="D" /><span>D. Tiny boop</span></div>
+    </div>
+    <div class="bar-chart" id="part2Chart"></div>
+    <p class="waiting">Host will continue to Part 3.</p>
+  </div>
+
+  <div id="part3" class="screen">
+    <h1>What in the womb is this? <span id="part3Num"></span></h1>
+    <div class="part3-img-wrap">
+      <img id="part3Img" src="" alt="Womb" />
+      <div class="part3-overlay" id="part3Overlay"></div>
+    </div>
+    <p class="timer" id="part3Timer"></p>
+    <p class="submitted-msg" id="part3Submitted" style="display:none">Your guess has been submitted. You can change it until time runs out or everyone has guessed.</p>
+    <p>Guess the body part (the covered area).</p>
+    <input type="text" id="part3Input" placeholder="Your guess" maxlength="200" />
+    <button id="btnPart3Submit">Submit</button>
+    <p class="waiting" id="part3Revealed" style="display:none">Answer revealed. Host is reviewing — you may get 1 point if you're correct!</p>
+    <p class="points-badge" id="myPoints" style="display:none">Your points: 0</p>
+  </div>
+
+  <div id="part3Results" class="screen">
+    <h1>Part 3 complete</h1>
+    <p class="points-badge" id="finalPoints">Your points: 0</p>
+    <p class="waiting">Thanks for playing!</p>
+  </div>
+
+  <div id="ended" class="screen">
+    <h1>Game ended</h1>
+    <p id="endedMsg"></p>
+    <button id="btnRejoin">Join another game</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let state = {};
+    let selectedPart2 = null;
+
+    function setConnectionStatus(status, text) {
+      const el = document.getElementById('connectionStatus');
+      if (!el) return;
+      el.className = 'connection-status ' + status;
+      el.textContent = text;
+    }
+
+    socket.on('connect', () => {
+      setConnectionStatus('connected', 'Connected. Enter your name and tap Join game.');
+    });
+    socket.on('connect_error', () => {
+      setConnectionStatus('disconnected', 'Cannot reach server. Use the same address as the host (e.g. http://localhost:3000/).');
+    });
+    socket.on('disconnect', () => {
+      setConnectionStatus('disconnected', 'Disconnected. Refresh the page to try again.');
+    });
+
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function render() {
+      if (!state.phase) return;
+    function timeLeft(startedAt) {
+      if (!startedAt) return 0;
+      return Math.max(0, Math.ceil(20 - (Date.now() - startedAt) / 1000));
+    }
+
+      if (state.phase === 'lobby') {
+        show('lobby');
+        return;
+      }
+      if (state.phase === 'part1') {
+        show('part1');
+        const closed = state.part1?.closed === true;
+        document.getElementById('part1Closed').style.display = closed ? 'block' : 'none';
+        document.getElementById('part1Submitted').style.display = (state.part1?.hasSubmitted && !closed) ? 'block' : 'none';
+        document.getElementById('part1Input').disabled = closed;
+        const t = timeLeft(state.part1?.startedAt);
+        document.getElementById('part1Timer').textContent = t > 0 ? 'Time left: ' + t + 's' : 'Time\'s up.';
+        return;
+      }
+      if (state.phase === 'part1_results') {
+        show('part1Results');
+        const list = state.part1Results || [];
+        document.getElementById('part1Answers').innerHTML = list.map(a => `<li><strong>${escapeHtml(a.name)}</strong>: ${escapeHtml(a.text) || '(no answer)'}</li>`).join('') || '<li>No answers</li>';
+        return;
+      }
+      if (state.phase === 'part2') {
+        show('part2');
+        const closed = state.part2?.closed === true;
+        document.getElementById('part2Closed').style.display = closed ? 'block' : 'none';
+        document.getElementById('part2Submitted').style.display = (state.part2?.hasSubmitted && !closed) ? 'block' : 'none';
+        const t2 = timeLeft(state.part2?.startedAt);
+        document.getElementById('part2Timer').textContent = t2 > 0 ? 'Time left: ' + t2 + 's' : 'Time\'s up.';
+        const opts = state.noseOptions || [];
+        const selectedId = state.part2?.selectedOptionId || null;
+        document.getElementById('part2Options').innerHTML = opts.map(o => `
+          <button type="button" class="secondary part2-opt ${selectedId === o.id ? 'selected' : ''}" data-option="${o.id}">${o.id}. ${o.label}</button>
+        `).join('');
+        document.querySelectorAll('.part2-opt').forEach(btn => {
+          btn.onclick = () => {
+            selectedPart2 = btn.dataset.option;
+            document.querySelectorAll('.part2-opt').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            socket.emit('player:part2', { optionId: selectedPart2 });
+          };
+        });
+        return;
+      }
+      if (state.phase === 'part2_results') {
+        show('part2Results');
+        const res = state.part2Results;
+        const options = (res && res.options) || [];
+        const answers = (res && res.answers) || [];
+        const counts = { A: 0, B: 0, C: 0, D: 0 };
+        answers.forEach(a => { if (counts[a.optionId] !== undefined) counts[a.optionId]++; });
+        const total = answers.length || 1;
+        document.getElementById('part2Chart').innerHTML = options.map(o => {
+          const n = counts[o.id] || 0;
+          const pct = Math.round((n / total) * 100);
+          return `<div class="bar-row"><label>${o.id}. ${o.label}</label><div class="bar-fill" style="width:${pct}%"></div><span>${n}</span></div>`;
+        }).join('');
+        return;
+      }
+      if (state.phase === 'part3' || state.phase === 'part3_review' || state.phase === 'part3_results') {
+        if (state.phase === 'part3_results') {
+          show('part3Results');
+          document.getElementById('finalPoints').textContent = 'Your points: ' + (state.myPoints || 0);
+          return;
+        }
+        show('part3');
+        const idx = (state.part3?.imageIndex ?? 0) + 1;
+        const total = state.part3?.imageCount ?? 11;
+        document.getElementById('part3Num').textContent = `(${idx} of ${total})`;
+        const img = state.part3?.image;
+        if (img) document.getElementById('part3Img').src = '/images/' + img;
+        const overlayEl = document.getElementById('part3Overlay');
+        overlayEl.classList.toggle('revealed', state.part3?.revealed === true);
+        const ov = state.part3?.overlay;
+        if (ov) {
+          overlayEl.style.left = ov.left + '%';
+          overlayEl.style.top = ov.top + '%';
+          overlayEl.style.width = ov.width + '%';
+          overlayEl.style.height = ov.height + '%';
+        }
+        const closed = state.part3?.revealed === true;
+        document.getElementById('part3Submitted').style.display = (state.part3?.hasSubmitted && !closed) ? 'block' : 'none';
+        const t3 = timeLeft(state.part3?.startedAt);
+        document.getElementById('part3Timer').textContent = t3 > 0 ? 'Time left: ' + t3 + 's' : 'Time\'s up.';
+        document.getElementById('part3Input').disabled = closed;
+        document.getElementById('part3Revealed').style.display = state.part3?.revealed ? 'block' : 'none';
+        document.getElementById('myPoints').style.display = 'block';
+        document.getElementById('myPoints').textContent = 'Your points: ' + (state.myPoints || 0);
+        return;
+      }
+    }
+
+    document.getElementById('btnJoin').onclick = () => {
+      if (!socket.connected) {
+        alert('Not connected to the server. Make sure the game is running and you opened this page at the right address (e.g. http://localhost:3000/).');
+        return;
+      }
+      const name = (document.getElementById('joinName').value || '').trim() || 'Player';
+      socket.emit('player:join', { name: name });
+    };
+
+    document.getElementById('btnPart1Submit').onclick = () => {
+      const text = (document.getElementById('part1Input').value || '').trim();
+      socket.emit('player:part1', { text });
+    };
+    document.getElementById('part1Input').oninput = () => {
+      const text = (document.getElementById('part1Input').value || '').trim();
+      socket.emit('player:part1', { text });
+    };
+
+    document.getElementById('btnPart3Submit').onclick = () => {
+      const text = (document.getElementById('part3Input').value || '').trim();
+      socket.emit('player:part3', { text });
+    };
+    document.getElementById('part3Input').oninput = () => {
+      const text = (document.getElementById('part3Input').value || '').trim();
+      socket.emit('player:part3', { text });
+    };
+
+    document.getElementById('btnRejoin').onclick = () => {
+      show('join');
+      state = {};
+    };
+
+    socket.on('joined', () => { state.code = socket.gameCode; });
+    socket.on('game:state', (data) => { state = data; render(); });
+    setInterval(() => {
+      if (state.phase === 'part1' || state.phase === 'part2' || state.phase === 'part3') render();
+    }, 1000);
+    socket.on('game:ended', (data) => {
+      show('ended');
+      document.getElementById('endedMsg').textContent = data.message || 'Game ended.';
+    });
+    socket.on('error', (data) => {
+      const msg = data && data.message ? data.message : 'Something went wrong.';
+      alert(msg);
+    });
+  </script>
+</body>
+</html>

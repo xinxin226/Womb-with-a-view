@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Womb with a View — Host</title>
+  <style>
+    :root {
+      --bg: #1a0a14;
+      --card: #2d1522;
+      --accent: #e8a0b8;
+      --text: #f5e6ec;
+      --muted: #9b7a85;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    h1 { font-size: 1.5rem; color: var(--accent); margin: 0 0 1rem; }
+    .code-box {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .code-box .code { font-size: 2.5rem; letter-spacing: 0.4em; font-weight: 700; color: var(--accent); }
+    .code-box p { color: var(--muted); margin: 0.5rem 0 0; font-size: 0.9rem; }
+    button, .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.25rem;
+    }
+    button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: var(--card); color: var(--accent); border: 1px solid var(--accent); }
+    .creature-img { width: 100%; max-width: 400px; border-radius: 12px; margin: 1rem auto; display: block; }
+    .part3-img-wrap { position: relative; max-width: 500px; margin: 1rem auto; border-radius: 12px; overflow: hidden; }
+    .part3-img-wrap img { width: 100%; display: block; }
+    .part3-overlay {
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      border-radius: 8px;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+    .part3-overlay.revealed { opacity: 0; }
+    .timer { color: var(--muted); font-size: 0.95rem; margin: 0.5rem 0; }
+    .answers-list { list-style: none; padding: 0; margin: 1rem 0; }
+    .answers-list li {
+      background: var(--card);
+      padding: 0.75rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .answers-list li input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
+    .bar-chart { margin: 1rem 0; }
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+    .bar-row label { min-width: 100px; font-size: 0.9rem; }
+    .bar-fill { height: 24px; background: var(--accent); border-radius: 4px; min-width: 20px; transition: width 0.3s; }
+    .nose-options { display: grid; gap: 0.5rem; margin: 1rem 0; }
+    .nose-options .opt { padding: 0.5rem; background: var(--card); border-radius: 8px; }
+    .players-list { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
+    .section-label { font-size: 1rem; color: var(--muted); margin: 1rem 0 0.5rem; font-weight: 600; }
+    .players-names { list-style: none; padding: 0; margin: 0.5rem 0; }
+    .players-names li { background: var(--card); padding: 0.5rem 1rem; margin: 0.25rem 0; border-radius: 8px; }
+    .players-names li.muted { color: var(--muted); }
+    .reset-row { margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div id="connect" class="screen active">
+    <h1>Womb with a View — Host</h1>
+    <p class="waiting">Setting up your game…</p>
+  </div>
+
+  <div id="lobby" class="screen">
+    <h1>Game ready</h1>
+    <div class="code-box">
+      <p>Players go to this site on their phones and enter their name — no code needed.</p>
+    </div>
+    <h2 class="section-label">Who's in the game</h2>
+    <ul class="players-names" id="lobbyPlayers"></ul>
+    <p class="players-list">Players joined: <span id="playerCount">0</span></p>
+    <button id="btnStartPart1">Start game</button>
+    <button id="btnResetLobby" class="secondary">Reset to lobby</button>
+  </div>
+
+  <div id="part1" class="screen">
+    <h1>Part 1: What kind of creature are we parenting?</h1>
+    <img class="creature-img" src="/images/image9.png" alt="Creature" />
+    <p class="timer" id="part1Timer"></p>
+    <p>Participants enter their guesses on their phones. You can close early or wait for the 20s / everyone guessed.</p>
+    <button id="btnClosePart1">Close question & show answers</button>
+    <div class="reset-row"><button id="btnResetPart1" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part1Results" class="screen">
+    <h1>Part 1 — All answers</h1>
+    <ul class="answers-list" id="part1Answers"></ul>
+    <button id="btnToPart2">Continue to Part 2</button>
+    <div class="reset-row"><button id="btnResetPart1Results" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part2" class="screen">
+    <h1>Part 2: Who NOSE the nose?</h1>
+    <p class="timer" id="part2Timer"></p>
+    <p>Participants choose A–D on their phones. You can close early or wait for the 20s / everyone guessed.</p>
+    <button id="btnClosePart2">Close question & show results</button>
+    <div class="reset-row"><button id="btnResetPart2" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part2Results" class="screen">
+    <h1>Part 2 — Results</h1>
+    <div class="bar-chart" id="part2Chart"></div>
+    <button id="btnToPart3">Continue to Part 3</button>
+    <div class="reset-row"><button id="btnResetPart2Results" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part3" class="screen">
+    <h1>Part 3: What in the womb is this? <span id="part3Num"></span></h1>
+    <div class="part3-img-wrap">
+      <img id="part3Img" src="" alt="Womb" />
+      <div class="part3-overlay" id="part3Overlay"></div>
+    </div>
+    <p class="timer" id="part3Timer"></p>
+    <p>Participants guess on their phones. Reveal the answer, then close to review and award points.</p>
+    <button id="btnRevealPart3">Reveal answer now</button>
+    <button id="btnRevealPart3_3s" class="secondary">Reveal in 3 seconds</button>
+    <button id="btnClosePart3" class="secondary">Close question & review answers</button>
+    <div class="reset-row"><button id="btnResetPart3" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part3Review" class="screen">
+    <h1>Part 3 — Select correct answers</h1>
+    <p>Check the answers that are correct. Those players get 1 point.</p>
+    <ul class="answers-list" id="part3Answers"></ul>
+    <button id="btnPart3Award">Award points to selected</button>
+    <button id="btnPart3Next" class="secondary">Next image</button>
+    <div class="reset-row"><button id="btnResetPart3Review" class="secondary">Reset to lobby</button></div>
+  </div>
+
+  <div id="part3Results" class="screen">
+    <h1>Part 3 complete</h1>
+    <p>Final scores (Part 3 only):</p>
+    <ul class="answers-list" id="part3Scores"></ul>
+    <button id="btnBackLobby" class="secondary">Back to lobby</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let state = {};
+
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    function render() {
+    function timeLeft(startedAt) {
+      if (!startedAt) return 0;
+      return Math.max(0, Math.ceil(20 - (Date.now() - startedAt) / 1000));
+    }
+
+      if (state.phase === 'lobby') {
+        show('lobby');
+        const players = state.players || [];
+        document.getElementById('playerCount').textContent = players.length;
+        document.getElementById('lobbyPlayers').innerHTML = players.length
+          ? players.map(p => '<li>' + escapeHtml(p.name) + '</li>').join('')
+          : '<li class="muted">No one has joined yet.</li>';
+        return;
+      }
+      if (state.phase === 'part1') {
+        show('part1');
+        const t = timeLeft(state.part1?.startedAt);
+        document.getElementById('part1Timer').textContent = t > 0 ? 'Time left: ' + t + 's (or until everyone has guessed)' : 'Time\'s up — close when ready.';
+        return;
+      }
+      if (state.phase === 'part1_results') {
+        show('part1Results');
+        const ul = document.getElementById('part1Answers');
+        ul.innerHTML = (state.part1?.answers || []).map(a => `<li><strong>${escapeHtml(a.name)}</strong>: ${escapeHtml(a.text) || '(no answer)'}</li>`).join('') || '<li>No answers</li>';
+        return;
+      }
+      if (state.phase === 'part2') {
+        show('part2');
+        const t2 = timeLeft(state.part2?.startedAt);
+        document.getElementById('part2Timer').textContent = t2 > 0 ? 'Time left: ' + t2 + 's (or until everyone has guessed)' : 'Time\'s up — close when ready.';
+        return;
+      }
+      if (state.phase === 'part2_results') {
+        show('part2Results');
+        const options = state.noseOptions || [];
+        const answers = state.part2?.answers || [];
+        const counts = { A: 0, B: 0, C: 0, D: 0 };
+        answers.forEach(a => { if (counts[a.optionId] !== undefined) counts[a.optionId]++; });
+        const total = answers.length || 1;
+        document.getElementById('part2Chart').innerHTML = options.map(o => {
+          const n = counts[o.id] || 0;
+          const pct = Math.round((n / total) * 100);
+          return `<div class="bar-row"><label>${o.id}. ${o.label}</label><div class="bar-fill" style="width:${pct}%"></div><span>${n}</span></div>`;
+        }).join('');
+        return;
+      }
+      if (state.phase === 'part3' || state.phase === 'part3_review') {
+        const isReview = state.phase === 'part3_review';
+        show(isReview ? 'part3Review' : 'part3');
+        const idx = (state.part3?.imageIndex ?? 0) + 1;
+        const total = state.part3?.imageCount ?? 11;
+        document.getElementById('part3Num').textContent = `(${idx} of ${total})`;
+        const img = state.part3?.image;
+        if (img) document.getElementById('part3Img').src = '/images/' + img;
+        const overlayEl = document.getElementById('part3Overlay');
+        overlayEl.classList.toggle('revealed', state.part3?.revealed === true);
+        const ov = state.part3?.overlay;
+        if (ov) {
+          overlayEl.style.left = ov.left + '%';
+          overlayEl.style.top = ov.top + '%';
+          overlayEl.style.width = ov.width + '%';
+          overlayEl.style.height = ov.height + '%';
+        }
+        const t = timeLeft(state.part3?.startedAt);
+        document.getElementById('part3Timer').textContent = t > 0 ? 'Time left: ' + t + 's' : 'Time\'s up — reveal & close when ready.';
+        if (isReview) {
+          const ul = document.getElementById('part3Answers');
+          const answers = state.part3?.answers || [];
+          const correctIds = new Set(state.part3?.correctPlayerIds || []);
+          ul.innerHTML = answers.map(a => `
+            <li>
+              <input type="checkbox" data-player-id="${escapeAttr(a.playerId)}" ${correctIds.has(a.playerId) ? 'checked' : ''} />
+              <strong>${escapeHtml(a.name)}</strong>: ${escapeHtml(a.text) || '(no answer)'}
+            </li>
+          `).join('') || '<li>No answers</li>';
+        }
+        return;
+      }
+      if (state.phase === 'part3_results') {
+        show('part3Results');
+        const players = (state.players || []).slice().sort((a, b) => (b.points || 0) - (a.points || 0));
+        document.getElementById('part3Scores').innerHTML = players.map(p => `<li><strong>${escapeHtml(p.name)}</strong>: ${p.points || 0} point(s)</li>`).join('');
+        return;
+      }
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/"/g, '&quot;');
+    }
+
+    socket.on('connect', () => {
+      socket.emit('host:create');
+    });
+    document.getElementById('btnStartPart1').onclick = () => socket.emit('host:startPart1');
+    function emitReset() { socket.emit('host:resetToLobby'); }
+    document.getElementById('btnResetLobby').onclick = emitReset;
+    document.getElementById('btnResetPart1').onclick = emitReset;
+    document.getElementById('btnResetPart1Results').onclick = emitReset;
+    document.getElementById('btnResetPart2').onclick = emitReset;
+    document.getElementById('btnResetPart2Results').onclick = emitReset;
+    document.getElementById('btnResetPart3').onclick = emitReset;
+    document.getElementById('btnResetPart3Review').onclick = emitReset;
+    document.getElementById('btnClosePart1').onclick = () => socket.emit('host:closePart1');
+    document.getElementById('btnToPart2').onclick = () => socket.emit('host:startPart2');
+    document.getElementById('btnClosePart2').onclick = () => socket.emit('host:closePart2');
+    document.getElementById('btnToPart3').onclick = () => socket.emit('host:startPart3');
+    let revealTimeout = null;
+    document.getElementById('btnRevealPart3').onclick = () => {
+      if (revealTimeout) clearTimeout(revealTimeout);
+      socket.emit('host:revealPart3');
+    };
+    document.getElementById('btnRevealPart3_3s').onclick = () => {
+      if (revealTimeout) clearTimeout(revealTimeout);
+      revealTimeout = setTimeout(() => { socket.emit('host:revealPart3'); revealTimeout = null; }, 3000);
+    };
+    document.getElementById('btnClosePart3').onclick = () => {
+      if (revealTimeout) clearTimeout(revealTimeout);
+      socket.emit('host:closePart3Question');
+    };
+    document.getElementById('btnPart3Award').onclick = () => {
+      const ids = Array.from(document.querySelectorAll('#part3Answers input:checked')).map(cb => cb.dataset.playerId);
+      socket.emit('host:setPart3Correct', { playerIds: ids });
+    };
+    document.getElementById('btnPart3Next').onclick = () => socket.emit('host:nextPart3Image');
+    document.getElementById('btnBackLobby').onclick = emitReset;
+
+    socket.on('game:code', (data) => { state.code = data.code; });
+    socket.on('game:state', (data) => { state = data; render(); });
+    socket.on('game:ended', (data) => { alert(data.message || 'Game ended.'); state = {}; show('connect'); });
+    socket.on('error', (data) => alert(data.message || 'Error'));
+    setInterval(() => {
+      if (state.phase === 'part1' || state.phase === 'part2' || state.phase === 'part3') render();
+    }, 1000);
+  </script>
+</body>
+</html>

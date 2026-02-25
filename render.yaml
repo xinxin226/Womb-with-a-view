@@ -1,0 +1,8 @@
+# Deploy to Render: push this repo and connect it in the Render dashboard.
+# Render will use this file, or you can create a Web Service manually (see DEPLOY.md).
+services:
+  - type: web
+    name: womb-with-a-view
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
