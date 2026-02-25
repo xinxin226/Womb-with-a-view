@@ -424,10 +424,15 @@ function serializeGameForPlayer(game, playerId) {
       timeRemaining: timeRemaining(game, 'part3'),
       startedAt: game.part3.startedAt,
       hasSubmitted: !!myPart3Arr,
-      myText: myPart3Arr ? myPart3Arr.text : ''
+      myText: myPart3Arr ? myPart3Arr.text : '',
+      allAnswers: game.phase === 'part3_review' ? currentPart3List : null
     },
     part1Results: game.phase === 'part1_results' ? game.part1.answers : null,
     part2Results: game.phase === 'part2_results' ? { answers: game.part2.answers, options: NOSE_OPTIONS } : null,
+    part3Results: game.phase === 'part3_results' ? {
+      myPoints: me ? me.points : 0,
+      leaderboard: Array.from(game.players.values()).sort((a, b) => (b.points || 0) - (a.points || 0))
+    } : null,
     noseOptions: NOSE_OPTIONS
   };
 }
@@ -437,6 +442,19 @@ function broadcastPlayerStates(game) {
     io.to(playerId).emit('game:state', serializeGameForPlayer(game, playerId));
   });
 }
+
+function broadcastGameState(game) {
+  io.to(game.hostSocketId).emit('game:state', serializeGameForHost(game));
+  broadcastPlayerStates(game);
+}
+
+// Auto-advance Part 1 when time is up or everyone has submitted (no host action required)
+setInterval(() => {
+  if (!currentGame || currentGame.phase !== 'part1') return;
+  if (!isQuestionClosed(currentGame, 'part1')) return;
+  currentGame.phase = 'part1_results';
+  broadcastGameState(currentGame);
+}, 1000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {

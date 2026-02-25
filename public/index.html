@@ -84,6 +84,8 @@
     .bar-row label { flex: 0 0 100px; font-size: 0.9rem; }
     .bar-fill { height: 22px; background: var(--accent); border-radius: 4px; min-width: 20px; transition: width 0.3s; }
     .points-badge { background: var(--accent); color: var(--bg); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; }
+    .my-answer { color: var(--accent); font-weight: 600; margin: 0.5rem 0; }
+    .leaderboard-title { font-size: 1.1rem; margin: 1rem 0 0.5rem; color: var(--accent); }
     .waiting { color: var(--muted); font-size: 0.95rem; margin: 1rem 0; }
     .question-img { width: 100%; max-width: 400px; border-radius: 12px; margin: 0.75rem 0; display: block; }
     .nose-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
@@ -163,16 +165,31 @@
     <p class="timer" id="part3Timer"></p>
     <p class="hint">You can change your answer until the question closes or time is up.</p>
     <p class="submitted-msg" id="part3Submitted" style="display:none">Submitted. Edit and tap Submit again to change your answer.</p>
-    <p>Guess the body part (the covered area).</p>
+    <p class="my-answer" id="part3MyAnswer" style="display:none">Your answer: <span id="part3MyAnswerText"></span></p>
+    <p>Guess the body part.</p>
     <input type="text" id="part3Input" placeholder="Your guess" maxlength="200" />
     <button id="btnPart3Submit">Submit</button>
     <p class="waiting" id="part3Revealed" style="display:none">Answer revealed. Host is reviewing — you may get 1 point if you're correct!</p>
     <p class="points-badge" id="myPoints" style="display:none">Your points: 0</p>
   </div>
 
+  <div id="part3Review" class="screen">
+    <h1>Part 3 — All responses <span id="part3ReviewNum"></span></h1>
+    <div class="part3-img-wrap">
+      <img id="part3ReviewImg" src="" alt="Womb" />
+      <div class="part3-overlay revealed" id="part3ReviewOverlay"></div>
+    </div>
+    <p class="my-answer">Your answer: <span id="part3ReviewMyAnswer"></span></p>
+    <p>All responses:</p>
+    <ul class="answers-list" id="part3ReviewAnswers"></ul>
+    <p class="waiting">Host is awarding points. Next image will show shortly.</p>
+  </div>
+
   <div id="part3Results" class="screen">
     <h1>Part 3 complete</h1>
     <p class="points-badge" id="finalPoints">Your points: 0</p>
+    <h2 class="leaderboard-title">Leaderboard</h2>
+    <ul class="answers-list leaderboard" id="part3Leaderboard"></ul>
     <p class="waiting">Thanks for playing!</p>
   </div>
 
@@ -285,12 +302,40 @@
       if (state.phase === 'part3' || state.phase === 'part3_review' || state.phase === 'part3_results') {
         if (state.phase === 'part3_results') {
           show('part3Results');
-          document.getElementById('finalPoints').textContent = 'Your points: ' + (state.myPoints || 0);
+          const res = state.part3Results || {};
+          const pts = res.myPoints ?? state.myPoints ?? 0;
+          const leaderboard = res.leaderboard || [];
+          document.getElementById('finalPoints').textContent = 'Your points: ' + pts;
+          document.getElementById('part3Leaderboard').innerHTML = leaderboard.map((p, i) =>
+            `<li><strong>${i + 1}. ${escapeHtml(p.name)}</strong>: ${p.points || 0} point(s)</li>`
+          ).join('') || '<li>No scores</li>';
+          return;
+        }
+        if (state.phase === 'part3_review') {
+          show('part3Review');
+          const idx = (state.part3?.imageIndex ?? 0) + 1;
+          const total = state.part3?.imageCount ?? 12;
+          document.getElementById('part3ReviewNum').textContent = `(${idx} of ${total})`;
+          const img = state.part3?.image;
+          if (img) document.getElementById('part3ReviewImg').src = '/images/' + img;
+          const ov = state.part3?.overlay;
+          const reviewOverlay = document.getElementById('part3ReviewOverlay');
+          if (ov && reviewOverlay) {
+            reviewOverlay.style.left = ov.left + '%';
+            reviewOverlay.style.top = ov.top + '%';
+            reviewOverlay.style.width = ov.width + '%';
+            reviewOverlay.style.height = ov.height + '%';
+          }
+          document.getElementById('part3ReviewMyAnswer').textContent = (state.part3?.myText || '').trim() || '(no answer)';
+          const allAnswers = state.part3?.allAnswers || [];
+          document.getElementById('part3ReviewAnswers').innerHTML = allAnswers.map(a =>
+            `<li><strong>${escapeHtml(a.name)}</strong>: ${escapeHtml(a.text) || '(no answer)'}</li>`
+          ).join('') || '<li>No answers</li>';
           return;
         }
         show('part3');
         const idx = (state.part3?.imageIndex ?? 0) + 1;
-        const total = state.part3?.imageCount ?? 11;
+        const total = state.part3?.imageCount ?? 12;
         document.getElementById('part3Num').textContent = `(${idx} of ${total})`;
         const img = state.part3?.image;
         if (img) document.getElementById('part3Img').src = '/images/' + img;
@@ -305,6 +350,14 @@
         }
         const closed = state.part3?.revealed === true;
         document.getElementById('part3Submitted').style.display = (state.part3?.hasSubmitted && !closed) ? 'block' : 'none';
+        const myAnswerEl = document.getElementById('part3MyAnswer');
+        const myAnswerTextEl = document.getElementById('part3MyAnswerText');
+        if (state.part3?.hasSubmitted && state.part3?.myText !== undefined) {
+          myAnswerEl.style.display = 'block';
+          myAnswerTextEl.textContent = (state.part3.myText || '').trim() || '(no answer)';
+        } else {
+          myAnswerEl.style.display = 'none';
+        }
         const t3 = timeLeft(state.part3?.startedAt);
         document.getElementById('part3Timer').textContent = t3 > 0 ? 'Time left: ' + t3 + 's' : 'Time\'s up.';
         document.getElementById('part3Input').disabled = closed;
@@ -342,7 +395,7 @@
     socket.on('joined', () => { state.code = socket.gameCode; });
     socket.on('game:state', (data) => { state = data; render(); });
     setInterval(() => {
-      if (state.phase === 'part1' || state.phase === 'part2' || state.phase === 'part3') render();
+      if (state.phase === 'part1' || state.phase === 'part2' || state.phase === 'part3' || state.phase === 'part3_review') render();
     }, 1000);
     socket.on('game:ended', (data) => {
       show('ended');
