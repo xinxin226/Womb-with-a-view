@@ -113,7 +113,7 @@
     <p class="timer" id="part1Timer"></p>
     <p class="submitted-msg" id="part1Submitted" style="display:none">Your guess has been submitted. You can change it until time runs out or everyone has guessed.</p>
     <p>Type your guess below.</p>
-    <input type="text" id="part1Input" placeholder="Your guess" maxlength="200" />
+    <input type="text" id="part1Input" placeholder="Your guess (up to 120 characters)" maxlength="120" />
     <button id="btnPart1Submit">Submit</button>
     <p class="waiting" id="part1Closed" style="display:none">Question closed. Waiting for results…</p>
   </div>
@@ -322,11 +322,7 @@
     };
 
     document.getElementById('btnPart1Submit').onclick = () => {
-      const text = (document.getElementById('part1Input').value || '').trim();
-      socket.emit('player:part1', { text });
-    };
-    document.getElementById('part1Input').oninput = () => {
-      const text = (document.getElementById('part1Input').value || '').trim();
+      const text = (document.getElementById('part1Input').value || '').trim().slice(0, 120);
       socket.emit('player:part1', { text });
     };
 

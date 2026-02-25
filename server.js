@@ -283,8 +283,8 @@ io.on('connection', (socket) => {
     const player = currentGame.players.get(socket.playerId);
     if (!player) return;
     const existing = currentGame.part1.answers.find(a => a.playerId === socket.playerId);
-    if (existing) existing.text = (text || '').slice(0, 200);
-    else currentGame.part1.answers.push({ playerId: socket.playerId, name: player.name, text: (text || '').slice(0, 200) });
+    if (existing) existing.text = (text || '').slice(0, 120);
+    else currentGame.part1.answers.push({ playerId: socket.playerId, name: player.name, text: (text || '').slice(0, 120) });
     io.to(currentGame.code).emit('game:state', serializeGameForHost(currentGame));
     broadcastPlayerStates(currentGame);
   });
