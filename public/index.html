@@ -3,19 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#1a0a14" />
+  <meta name="theme-color" content="#fff5f8" />
   <title>Womb with a View</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #1a0a14;
-      --card: #2d1522;
+      --bg: #fff5f8;
+      --card: #ffffff;
       --accent: #e8a0b8;
-      --text: #f5e6ec;
-      --muted: #9b7a85;
+      --accent-soft: #f5d4de;
+      --text: #3d2c33;
+      --muted: #8b7a80;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       margin: 0;
@@ -25,37 +29,41 @@
     }
     .screen { display: none; }
     .screen.active { display: block; }
-    h1 { font-size: 1.35rem; color: var(--accent); margin: 0 0 0.75rem; }
+    h1 { font-size: 1.35rem; color: var(--text); margin: 0 0 0.75rem; font-weight: 700; }
+    h2 { font-size: 1.1rem; color: var(--muted); margin: 0 0 0.5rem; font-weight: 600; }
     input[type="text"] {
       width: 100%;
       padding: 1rem;
       font-size: 1rem;
-      border: 2px solid var(--card);
-      border-radius: 10px;
+      border: 2px solid var(--accent-soft);
+      border-radius: 16px;
       background: var(--card);
       color: var(--text);
       margin: 0.5rem 0;
+      font-family: inherit;
     }
     input::placeholder { color: var(--muted); }
     button, .btn {
       display: block;
       width: 100%;
       background: var(--accent);
-      color: var(--bg);
+      color: #fff;
       border: none;
       padding: 1rem 1.5rem;
-      border-radius: 10px;
+      border-radius: 16px;
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       margin: 0.5rem 0;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(232, 160, 184, 0.35);
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     .options-grid { display: grid; gap: 0.75rem; margin: 1rem 0; }
     .options-grid button { margin: 0; }
-    .options-grid button.secondary { background: var(--card); color: var(--accent); border: 2px solid var(--accent); }
-    .options-grid button.selected { background: #c07090; border-color: var(--accent); }
-    .part3-img-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; margin: 1rem 0; }
+    .options-grid button.secondary { background: var(--card); color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
+    .options-grid button.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+    .part3-img-wrap { position: relative; width: 100%; border-radius: 20px; overflow: hidden; margin: 1rem 0; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
     .part3-img-wrap img { width: 100%; display: block; }
     .part3-overlay {
       position: absolute;
@@ -65,124 +73,117 @@
       pointer-events: none;
     }
     .part3-overlay.revealed { opacity: 0; }
-    .timer { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
-    .submitted-msg { color: var(--accent); font-size: 0.9rem; margin: 0.5rem 0; }
+    .timer { color: var(--muted); font-size: 0.95rem; margin: 0.5rem 0; font-weight: 600; }
+    .submitted-msg { color: var(--accent); font-size: 0.9rem; margin: 0.5rem 0; font-weight: 600; }
     .hint { color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
-    .connection-status { font-size: 0.85rem; margin: 0.5rem 0; padding: 0.5rem; border-radius: 8px; }
-    .connection-status.connected { background: rgba(0,128,0,0.2); color: #9ee; }
-    .connection-status.disconnected { background: rgba(200,80,80,0.2); color: #faa; }
+    .connection-status { font-size: 0.9rem; margin: 0.5rem 0; padding: 0.75rem; border-radius: 16px; }
+    .connection-status.connected { background: rgba(126, 184, 160, 0.2); color: #2d6a54; }
+    .connection-status.disconnected { background: rgba(200,100,100,0.15); color: #a04040; }
     .connection-status.connecting { color: var(--muted); }
     .answers-list { list-style: none; padding: 0; margin: 1rem 0; }
     .answers-list li {
       background: var(--card);
       padding: 0.75rem 1rem;
       margin: 0.5rem 0;
-      border-radius: 8px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .bar-chart { margin: 1rem 0; }
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
     .bar-row label { flex: 0 0 100px; font-size: 0.9rem; }
-    .bar-fill { height: 22px; background: var(--accent); border-radius: 4px; min-width: 20px; transition: width 0.3s; }
-    .points-badge { background: var(--accent); color: var(--bg); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; }
-    .my-answer { color: var(--accent); font-weight: 600; margin: 0.5rem 0; }
-    .leaderboard-title { font-size: 1.1rem; margin: 1rem 0 0.5rem; color: var(--accent); }
+    .bar-fill { height: 24px; background: var(--accent); border-radius: 12px; min-width: 20px; transition: width 0.3s; }
+    .points-badge { background: var(--accent); color: #fff; padding: 0.35rem 0.75rem; border-radius: 12px; font-weight: 700; display: inline-block; }
+    .my-answer { color: var(--accent); font-weight: 700; margin: 0.5rem 0; }
+    .leaderboard-title { font-size: 1.1rem; margin: 1rem 0 0.5rem; color: var(--text); font-weight: 700; }
     .waiting { color: var(--muted); font-size: 0.95rem; margin: 1rem 0; }
-    .question-img { width: 100%; max-width: 400px; border-radius: 12px; margin: 0.75rem 0; display: block; }
+    .question-img { width: 100%; max-width: 400px; border-radius: 20px; margin: 0.75rem 0; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
     .nose-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
-    .nose-option { text-align: center; }
-    .nose-option img { width: 100%; border-radius: 10px; display: block; margin-bottom: 0.25rem; }
-    .nose-option span { font-size: 0.9rem; font-weight: 600; color: var(--accent); }
+    .nose-option { text-align: center; background: var(--card); padding: 0.75rem; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .nose-option img { width: 100%; border-radius: 12px; display: block; margin-bottom: 0.25rem; }
+    .nose-option span { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
   </style>
 </head>
 <body>
   <div id="join" class="screen active">
     <h1>Womb with a View</h1>
-    <p id="connectionStatus" class="connection-status connecting">Connecting to server…</p>
+    <p id="connectionStatus" class="connection-status connecting">Connecting…</p>
     <p>Enter your name to join. No code needed.</p>
-    <p class="hint">You can join now and wait in the lobby until the host starts the game.</p>
     <input type="text" id="joinName" placeholder="Your name" maxlength="30" />
     <button id="btnJoin">Join game</button>
   </div>
 
   <div id="lobby" class="screen">
     <h1>You're in!</h1>
-    <p class="waiting">Waiting for the host to start Part 1…</p>
+    <p class="waiting">Waiting for the host to start the game.</p>
   </div>
 
   <div id="part1" class="screen">
-    <h1>What kind of creature are we parenting?</h1>
-    <img class="question-img" src="/images/image9.png" alt="Creature" />
+    <h1>Part 1: What kind of creature are we parenting?</h1>
+    <img class="question-img" src="/images/image9.png" alt="Ultrasound" />
     <p class="timer" id="part1Timer"></p>
-    <p class="hint">You can change your answer until the question closes or time is up.</p>
-    <p class="submitted-msg" id="part1Submitted" style="display:none">Submitted. Edit and tap Submit again to change your answer.</p>
-    <p>Type your guess below.</p>
-    <input type="text" id="part1Input" placeholder="Your guess (up to 120 characters)" maxlength="120" />
+    <p>Type your guess. You have 30 seconds or until everyone answers.</p>
+    <p class="submitted-msg" id="part1Submitted" style="display:none">Submitted. You can change your answer until time is up.</p>
+    <input type="text" id="part1Input" placeholder="Your guess" maxlength="120" />
     <button id="btnPart1Submit">Submit</button>
-    <p class="waiting" id="part1Closed" style="display:none">Question closed. Waiting for results…</p>
+    <p class="waiting" id="part1Closed" style="display:none">Time's up. Showing answers…</p>
   </div>
 
   <div id="part1Results" class="screen">
-    <h1>Part 1 — All answers</h1>
-    <img class="question-img" src="/images/image9.png" alt="Creature" />
+    <h1>Part 1: What kind of creature are we parenting?</h1>
+    <img class="question-img" src="/images/image9.png" alt="Ultrasound" />
+    <h2>Everyone's answers</h2>
     <ul class="answers-list" id="part1Answers"></ul>
-    <p class="waiting">Host will continue to Part 2.</p>
+    <p class="waiting">No points in this part. Host will continue to Part 2.</p>
   </div>
 
   <div id="part2" class="screen">
-    <h1>Who NOSE the nose?</h1>
+    <h1>Part 2: Who NOSE the nose?</h1>
+    <p class="timer" id="part2Timer"></p>
+    <p>Pick one option. You have 30 seconds or until everyone answers.</p>
     <div class="nose-grid" id="part2NoseImages">
       <div class="nose-option"><img src="/images/image15.png" alt="A" /><span>A. Pointy</span></div>
       <div class="nose-option"><img src="/images/image13.png" alt="B" /><span>B. Whoville</span></div>
       <div class="nose-option"><img src="/images/image8.png" alt="C" /><span>C. Rounded</span></div>
       <div class="nose-option"><img src="/images/image4.png" alt="D" /><span>D. Tiny boop</span></div>
     </div>
-    <p class="timer" id="part2Timer"></p>
-    <p class="hint">You can change your answer until the question closes or time is up.</p>
-    <p class="submitted-msg" id="part2Submitted" style="display:none">Submitted. Tap a different option to change your answer.</p>
-    <p>Choose one:</p>
+    <p class="submitted-msg" id="part2Submitted" style="display:none">Submitted. Tap another option to change.</p>
     <div class="options-grid" id="part2Options"></div>
-    <p class="waiting" id="part2Closed" style="display:none">Question closed. Waiting for results…</p>
+    <p class="waiting" id="part2Closed" style="display:none">Time's up. Showing results…</p>
   </div>
 
   <div id="part2Results" class="screen">
-    <h1>Part 2 — Results</h1>
-    <div class="nose-grid">
-      <div class="nose-option"><img src="/images/image15.png" alt="A" /><span>A. Pointy</span></div>
-      <div class="nose-option"><img src="/images/image13.png" alt="B" /><span>B. Whoville</span></div>
-      <div class="nose-option"><img src="/images/image8.png" alt="C" /><span>C. Rounded</span></div>
-      <div class="nose-option"><img src="/images/image4.png" alt="D" /><span>D. Tiny boop</span></div>
-    </div>
+    <h1>Part 2: Who NOSE the nose?</h1>
+    <h2>How many picked each option</h2>
     <div class="bar-chart" id="part2Chart"></div>
-    <p class="waiting">Host will continue to Part 3.</p>
+    <p class="waiting">No points in this part. Host will continue to Part 3.</p>
   </div>
 
   <div id="part3" class="screen">
-    <h1>What in the womb is this? <span id="part3Num"></span></h1>
+    <h1>Part 3: What in the womb is this? <span id="part3Num"></span></h1>
     <div class="part3-img-wrap">
       <img id="part3Img" src="" alt="Womb" />
       <div class="part3-overlay" id="part3Overlay"></div>
     </div>
     <p class="timer" id="part3Timer"></p>
-    <p class="hint">You can change your answer until the question closes or time is up.</p>
-    <p class="submitted-msg" id="part3Submitted" style="display:none">Submitted. Edit and tap Submit again to change your answer.</p>
+    <p>Guess the body part. You have 30 seconds or until everyone answers. Closest answers get 1 point.</p>
+    <p class="submitted-msg" id="part3Submitted" style="display:none">Submitted. You can change until time is up.</p>
     <p class="my-answer" id="part3MyAnswer" style="display:none">Your answer: <span id="part3MyAnswerText"></span></p>
-    <p>Guess the body part.</p>
     <input type="text" id="part3Input" placeholder="Your guess" maxlength="200" />
     <button id="btnPart3Submit">Submit</button>
-    <p class="waiting" id="part3Revealed" style="display:none">Answer revealed. Host is reviewing — you may get 1 point if you're correct!</p>
+    <p class="waiting" id="part3Revealed" style="display:none">Answer revealed. Host is awarding points.</p>
     <p class="points-badge" id="myPoints" style="display:none">Your points: 0</p>
   </div>
 
   <div id="part3Review" class="screen">
-    <h1>Part 3 — All responses <span id="part3ReviewNum"></span></h1>
+    <h1>Part 3: What in the womb is this? <span id="part3ReviewNum"></span></h1>
     <div class="part3-img-wrap">
       <img id="part3ReviewImg" src="" alt="Womb" />
       <div class="part3-overlay revealed" id="part3ReviewOverlay"></div>
     </div>
     <p class="my-answer">Your answer: <span id="part3ReviewMyAnswer"></span></p>
-    <p>All responses:</p>
+    <h2>All responses</h2>
     <ul class="answers-list" id="part3ReviewAnswers"></ul>
-    <p class="waiting">Host is awarding points. Next image will show shortly.</p>
+    <p class="waiting">Host is selecting correct answers. Next image soon.</p>
   </div>
 
   <div id="part3Results" class="screen">
@@ -239,7 +240,7 @@
       if (!state.phase) return;
     function timeLeft(startedAt) {
       if (!startedAt) return 0;
-      return Math.max(0, Math.ceil(20 - (Date.now() - startedAt) / 1000));
+      return Math.max(0, Math.ceil(30 - (Date.now() - startedAt) / 1000));
     }
 
       if (state.phase === 'lobby') {

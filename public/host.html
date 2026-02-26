@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fff5f8" />
   <title>Womb with a View — Host</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #1a0a14;
-      --card: #2d1522;
+      --bg: #fff5f8;
+      --card: #ffffff;
       --accent: #e8a0b8;
-      --text: #f5e6ec;
-      --muted: #9b7a85;
+      --accent-soft: #f5d4de;
+      --text: #3d2c33;
+      --muted: #8b7a80;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       margin: 0;
@@ -23,32 +28,35 @@
     }
     .screen { display: none; }
     .screen.active { display: block; }
-    h1 { font-size: 1.5rem; color: var(--accent); margin: 0 0 1rem; }
+    h1 { font-size: 1.4rem; color: var(--text); margin: 0 0 1rem; font-weight: 700; }
+    h2 { font-size: 1.1rem; color: var(--muted); margin: 0 0 0.5rem; font-weight: 600; }
     .code-box {
       background: var(--card);
       padding: 1.5rem;
-      border-radius: 12px;
+      border-radius: 20px;
       text-align: center;
       margin: 1rem 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
-    .code-box .code { font-size: 2.5rem; letter-spacing: 0.4em; font-weight: 700; color: var(--accent); }
-    .code-box p { color: var(--muted); margin: 0.5rem 0 0; font-size: 0.9rem; }
+    .code-box p { color: var(--muted); margin: 0; font-size: 0.95rem; }
     button, .btn {
       display: inline-block;
       background: var(--accent);
-      color: var(--bg);
+      color: #fff;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      border-radius: 16px;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       margin: 0.25rem;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(232, 160, 184, 0.35);
     }
     button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    button.secondary { background: var(--card); color: var(--accent); border: 1px solid var(--accent); }
-    .creature-img { width: 100%; max-width: 400px; border-radius: 12px; margin: 1rem auto; display: block; }
-    .part3-img-wrap { position: relative; max-width: 500px; margin: 1rem auto; border-radius: 12px; overflow: hidden; }
+    button.secondary { background: var(--card); color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
+    .creature-img { width: 100%; max-width: 400px; border-radius: 20px; margin: 1rem auto; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .part3-img-wrap { position: relative; max-width: 500px; margin: 1rem auto; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
     .part3-img-wrap img { width: 100%; display: block; }
     .part3-overlay {
       position: absolute;
@@ -58,28 +66,28 @@
       pointer-events: none;
     }
     .part3-overlay.revealed { opacity: 0; }
-    .timer { color: var(--muted); font-size: 0.95rem; margin: 0.5rem 0; }
+    .timer { color: var(--muted); font-size: 0.95rem; margin: 0.5rem 0; font-weight: 600; }
     .answers-list { list-style: none; padding: 0; margin: 1rem 0; }
     .answers-list li {
       background: var(--card);
       padding: 0.75rem 1rem;
       margin: 0.5rem 0;
-      border-radius: 8px;
+      border-radius: 16px;
       display: flex; align-items: center; gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .answers-list li input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
     .bar-chart { margin: 1rem 0; }
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
     .bar-row label { min-width: 100px; font-size: 0.9rem; }
-    .bar-fill { height: 24px; background: var(--accent); border-radius: 4px; min-width: 20px; transition: width 0.3s; }
-    .nose-options { display: grid; gap: 0.5rem; margin: 1rem 0; }
-    .nose-options .opt { padding: 0.5rem; background: var(--card); border-radius: 8px; }
+    .bar-fill { height: 24px; background: var(--accent); border-radius: 12px; min-width: 20px; transition: width 0.3s; }
     .players-list { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
     .section-label { font-size: 1rem; color: var(--muted); margin: 1rem 0 0.5rem; font-weight: 600; }
     .players-names { list-style: none; padding: 0; margin: 0.5rem 0; }
-    .players-names li { background: var(--card); padding: 0.5rem 1rem; margin: 0.25rem 0; border-radius: 8px; }
+    .players-names li { background: var(--card); padding: 0.5rem 1rem; margin: 0.25rem 0; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .players-names li.muted { color: var(--muted); }
     .reset-row { margin-top: 1.5rem; }
+    .host-hint { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
   </style>
 </head>
 <body>
@@ -91,7 +99,7 @@
   <div id="lobby" class="screen">
     <h1>Game ready</h1>
     <div class="code-box">
-      <p>Players go to this site on their phones and enter their name — no code needed.</p>
+      <p>Players open this site on their phones and enter their name. No code needed.</p>
     </div>
     <h2 class="section-label">Who's in the game</h2>
     <ul class="players-names" id="lobbyPlayers"></ul>
@@ -102,15 +110,16 @@
 
   <div id="part1" class="screen">
     <h1>Part 1: What kind of creature are we parenting?</h1>
-    <img class="creature-img" src="/images/image9.png" alt="Creature" />
+    <img class="creature-img" src="/images/image9.png" alt="Ultrasound" />
     <p class="timer" id="part1Timer"></p>
-    <p>Participants enter their guesses on their phones. You can close early or wait for the 20s / everyone guessed.</p>
-    <button id="btnClosePart1">Close question & show answers</button>
+    <p class="host-hint">Participants type their guess on their phones. Round ends after 30s or when everyone has answered — then everyone sees all answers. No points.</p>
+    <button id="btnClosePart1" class="secondary">End round early</button>
     <div class="reset-row"><button id="btnResetPart1" class="secondary">Reset to lobby</button></div>
   </div>
 
   <div id="part1Results" class="screen">
-    <h1>Part 1 — All answers</h1>
+    <h1>Part 1: What kind of creature are we parenting?</h1>
+    <h2>Everyone's answers</h2>
     <ul class="answers-list" id="part1Answers"></ul>
     <button id="btnToPart2">Continue to Part 2</button>
     <div class="reset-row"><button id="btnResetPart1Results" class="secondary">Reset to lobby</button></div>
@@ -119,13 +128,14 @@
   <div id="part2" class="screen">
     <h1>Part 2: Who NOSE the nose?</h1>
     <p class="timer" id="part2Timer"></p>
-    <p>Participants choose A–D on their phones. You can close early or wait for the 20s / everyone guessed.</p>
-    <button id="btnClosePart2">Close question & show results</button>
+    <p class="host-hint">Participants pick A, B, C, or D on their phones. Round ends after 30s or when everyone has answered — then everyone sees how many picked each option. No points.</p>
+    <button id="btnClosePart2" class="secondary">End round early</button>
     <div class="reset-row"><button id="btnResetPart2" class="secondary">Reset to lobby</button></div>
   </div>
 
   <div id="part2Results" class="screen">
-    <h1>Part 2 — Results</h1>
+    <h1>Part 2: Who NOSE the nose?</h1>
+    <h2>Results</h2>
     <div class="bar-chart" id="part2Chart"></div>
     <button id="btnToPart3">Continue to Part 3</button>
     <div class="reset-row"><button id="btnResetPart2Results" class="secondary">Reset to lobby</button></div>
@@ -138,14 +148,14 @@
       <div class="part3-overlay" id="part3Overlay"></div>
     </div>
     <p class="timer" id="part3Timer"></p>
-    <p>Participants guess on their phones. When ready, close the question — the answer will be revealed to everyone, then you review and award points.</p>
-    <button id="btnClosePart3">Close question & review answers</button>
+    <p class="host-hint">Participants guess the body part. Round ends after 30s or when everyone has answered — then everyone sees all answers. You select the closest answers and award 1 point each. Next image loads after you award.</p>
+    <button id="btnClosePart3" class="secondary">End round early</button>
     <div class="reset-row"><button id="btnResetPart3" class="secondary">Reset to lobby</button></div>
   </div>
 
   <div id="part3Review" class="screen">
-    <h1>Part 3 — Select correct answers</h1>
-    <p>Check the answers that are correct. Those players get 1 point. After you award points, the next image will show automatically.</p>
+    <h1>Part 3: Select correct answers</h1>
+    <p class="host-hint">Check each answer that is correct (or close). Those players get 1 point. Then tap Award — the next image will show automatically.</p>
     <ul class="answers-list" id="part3Answers"></ul>
     <button id="btnPart3Award">Award points to selected</button>
     <div class="reset-row"><button id="btnResetPart3Review" class="secondary">Reset to lobby</button></div>
@@ -153,7 +163,7 @@
 
   <div id="part3Results" class="screen">
     <h1>Part 3 complete</h1>
-    <p>Final scores (Part 3 only):</p>
+    <h2>Final scores (Part 3 — most points wins)</h2>
     <ul class="answers-list" id="part3Scores"></ul>
     <button id="btnBackLobby" class="secondary">Back to lobby</button>
   </div>
@@ -172,7 +182,7 @@
     function render() {
     function timeLeft(startedAt) {
       if (!startedAt) return 0;
-      return Math.max(0, Math.ceil(20 - (Date.now() - startedAt) / 1000));
+      return Math.max(0, Math.ceil(30 - (Date.now() - startedAt) / 1000));
     }
 
       if (state.phase === 'lobby') {
@@ -187,7 +197,7 @@
       if (state.phase === 'part1') {
         show('part1');
         const t = timeLeft(state.part1?.startedAt);
-        document.getElementById('part1Timer').textContent = t > 0 ? 'Time left: ' + t + 's (or until everyone has guessed)' : 'Time\'s up — close when ready.';
+        document.getElementById('part1Timer').textContent = t > 0 ? 'Time left: ' + t + 's (or until everyone answers)' : 'Time\'s up.';
         return;
       }
       if (state.phase === 'part1_results') {
@@ -199,7 +209,7 @@
       if (state.phase === 'part2') {
         show('part2');
         const t2 = timeLeft(state.part2?.startedAt);
-        document.getElementById('part2Timer').textContent = t2 > 0 ? 'Time left: ' + t2 + 's (or until everyone has guessed)' : 'Time\'s up — close when ready.';
+        document.getElementById('part2Timer').textContent = t2 > 0 ? 'Time left: ' + t2 + 's (or until everyone answers)' : 'Time\'s up.';
         return;
       }
       if (state.phase === 'part2_results') {
@@ -234,7 +244,7 @@
           overlayEl.style.height = ov.height + '%';
         }
         const t = timeLeft(state.part3?.startedAt);
-        document.getElementById('part3Timer').textContent = t > 0 ? 'Time left: ' + t + 's' : 'Time\'s up — reveal & close when ready.';
+        document.getElementById('part3Timer').textContent = t > 0 ? 'Time left: ' + t + 's (or until everyone answers)' : 'Time\'s up.';
         if (isReview) {
           const ul = document.getElementById('part3Answers');
           const answers = state.part3?.answers || [];

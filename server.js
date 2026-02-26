@@ -45,7 +45,7 @@ const NOSE_OPTIONS = [
   { id: 'D', label: 'Tiny boop' }
 ];
 
-const QUESTION_SECONDS = 20;
+const QUESTION_SECONDS = 30;
 
 // Single active game (no code needed for players)
 let currentGame = null;
@@ -448,12 +448,25 @@ function broadcastGameState(game) {
   broadcastPlayerStates(game);
 }
 
-// Auto-advance Part 1 when time is up or everyone has submitted (no host action required)
+// Auto-advance when time is up (30s) or everyone has submitted — no host action required
 setInterval(() => {
-  if (!currentGame || currentGame.phase !== 'part1') return;
-  if (!isQuestionClosed(currentGame, 'part1')) return;
-  currentGame.phase = 'part1_results';
-  broadcastGameState(currentGame);
+  if (!currentGame) return;
+  const game = currentGame;
+  if (game.phase === 'part1' && isQuestionClosed(game, 'part1')) {
+    game.phase = 'part1_results';
+    broadcastGameState(game);
+    return;
+  }
+  if (game.phase === 'part2' && isQuestionClosed(game, 'part2')) {
+    game.phase = 'part2_results';
+    broadcastGameState(game);
+    return;
+  }
+  if (game.phase === 'part3' && !game.part3.revealed && isQuestionClosed(game, 'part3')) {
+    game.part3.revealed = true;
+    game.phase = 'part3_review';
+    broadcastGameState(game);
+  }
 }, 1000);
 
 const PORT = process.env.PORT || 3000;
