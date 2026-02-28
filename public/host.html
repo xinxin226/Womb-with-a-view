@@ -124,43 +124,69 @@
     .host-hint { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
     .deco-wrap { position: relative; z-index: 1; min-height: 100vh; }
     .decorations { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-    .deco-elephant {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 140px;
-      height: 100px;
-      z-index: 0;
-      opacity: 0.9;
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75), rgba(184,212,200,0.4));
+      border: 1px solid rgba(255,255,255,0.6);
+      animation: float 6s ease-in-out infinite;
     }
-    .deco-elephant svg { width: 100%; height: 100%; display: block; }
-    .deco-wrap { position: relative; z-index: 1; min-height: 100vh; padding-bottom: 6rem; }
-    @keyframes float { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
-    .deco-elephant { animation: float 4s ease-in-out infinite; }
+    .bubble:nth-child(1) { width: 40px; height: 40px; left: 8%; top: 12%; animation-delay: 0s; }
+    .bubble:nth-child(2) { width: 28px; height: 28px; left: 85%; top: 8%; animation-delay: 1s; }
+    .bubble:nth-child(3) { width: 35px; height: 35px; left: 75%; top: 45%; animation-delay: 2s; }
+    .bubble:nth-child(4) { width: 22px; height: 22px; left: 12%; top: 55%; animation-delay: 0.5s; }
+    .bubble:nth-child(5) { width: 30px; height: 30px; left: 5%; top: 78%; animation-delay: 3s; }
+    .bubble:nth-child(6) { width: 25px; height: 25px; left: 88%; top: 75%; animation-delay: 1.5s; }
+    .bubble:nth-child(7) { width: 18px; height: 18px; left: 45%; top: 5%; animation-delay: 2.5s; }
+    .bubble:nth-child(8) { width: 32px; height: 32px; left: 50%; top: 85%; animation-delay: 4s; }
+    .balloon {
+      position: absolute;
+      font-size: 1.8rem;
+      opacity: 0.85;
+      animation: float 5s ease-in-out infinite;
+    }
+    .balloon:nth-child(9) { left: 3%; top: 25%; animation-delay: 0.2s; }
+    .balloon:nth-child(10) { left: 92%; top: 35%; animation-delay: 1.2s; }
+    .balloon:nth-child(11) { left: 90%; top: 60%; animation-delay: 2.2s; }
+    .balloon:nth-child(12) { left: 6%; top: 70%; animation-delay: 0.8s; }
+    .balloon:nth-child(13) { left: 50%; top: 2%; animation-delay: 3s; }
+    .deco-animal {
+      position: absolute;
+      font-size: 1.5rem;
+      opacity: 0.8;
+      animation: float 7s ease-in-out infinite;
+    }
+    .deco-animal:nth-child(14) { left: 15%; top: 18%; animation-delay: 0.5s; }
+    .deco-animal:nth-child(15) { left: 82%; top: 22%; animation-delay: 1.5s; }
+    .deco-animal:nth-child(16) { left: 78%; top: 72%; animation-delay: 2.5s; }
+    .deco-animal:nth-child(17) { left: 8%; top: 68%; animation-delay: 0.8s; }
+    .deco-animal:nth-child(18) { left: 48%; top: 88%; animation-delay: 3.5s; }
+    .deco-heart {
+      position: absolute;
+      font-size: 1rem;
+      opacity: 0.6;
+      color: var(--heart);
+      animation: float 5.5s ease-in-out infinite;
+    }
+    .deco-heart:nth-child(19) { left: 25%; top: 10%; animation-delay: 1s; }
+    .deco-heart:nth-child(20) { left: 70%; top: 50%; animation-delay: 2s; }
+    .deco-heart:nth-child(21) { left: 18%; top: 82%; animation-delay: 0.3s; }
+    .deco-wrap { position: relative; z-index: 1; min-height: 100vh; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.02); }
+    }
   </style>
 </head>
 <body>
   <div class="pattern-bg" aria-hidden="true"></div>
   <div class="overlay" aria-hidden="true"></div>
   <div class="decorations" aria-hidden="true">
-    <div class="deco-elephant">
-      <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="60" cy="58" rx="32" ry="22" fill="#b0a8a8"/>
-        <ellipse cx="60" cy="52" rx="28" ry="18" fill="#c0b8b8"/>
-        <circle cx="60" cy="28" r="18" fill="#b0a8a8"/>
-        <circle cx="60" cy="26" r="14" fill="#c0b8b8"/>
-        <path d="M48 22 Q38 14 32 20 Q28 28 36 34 Q42 38 50 32" fill="#b0a8a8" stroke="#9a9292" stroke-width="1" stroke-linejoin="round"/>
-        <path d="M48 24 Q40 18 36 24 Q34 30 42 32" fill="#c0b8b8"/>
-        <ellipse cx="38" cy="30" rx="10" ry="14" fill="#b0a8a8"/>
-        <ellipse cx="36" cy="28" rx="7" ry="10" fill="#c0b8b8"/>
-        <ellipse cx="82" cy="30" rx="10" ry="14" fill="#b0a8a8"/>
-        <ellipse cx="80" cy="28" rx="7" ry="10" fill="#c0b8b8"/>
-        <circle cx="54" cy="24" r="3" fill="#1a3d3d"/>
-        <circle cx="66" cy="24" r="3" fill="#1a3d3d"/>
-        <path d="M58 18 Q60 14 62 18" fill="none" stroke="#1a3d3d" stroke-width="1" stroke-linecap="round"/>
-      </svg>
-    </div>
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+    <span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span>
+    <span class="deco-animal">🦁</span><span class="deco-animal">🦒</span><span class="deco-animal">🐘</span><span class="deco-animal">🦩</span><span class="deco-animal">🦓</span>
+    <span class="deco-heart">♥</span><span class="deco-heart">♥</span><span class="deco-heart">♥</span>
   </div>
   <div class="deco-wrap">
   <div id="connect" class="screen active">
