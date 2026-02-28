@@ -88,9 +88,47 @@
     .players-names li.muted { color: var(--muted); }
     .reset-row { margin-top: 1.5rem; }
     .host-hint { color: var(--muted); font-size: 0.9rem; margin: 0.5rem 0; }
+    .deco-wrap { position: relative; z-index: 1; min-height: 100vh; }
+    .decorations { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(232,160,184,0.25));
+      border: 1px solid rgba(255,255,255,0.5);
+      animation: float 6s ease-in-out infinite;
+    }
+    .bubble:nth-child(1) { width: 40px; height: 40px; left: 8%; top: 12%; animation-delay: 0s; }
+    .bubble:nth-child(2) { width: 28px; height: 28px; left: 85%; top: 8%; animation-delay: 1s; }
+    .bubble:nth-child(3) { width: 35px; height: 35px; left: 75%; top: 45%; animation-delay: 2s; }
+    .bubble:nth-child(4) { width: 22px; height: 22px; left: 12%; top: 55%; animation-delay: 0.5s; }
+    .bubble:nth-child(5) { width: 30px; height: 30px; left: 5%; top: 78%; animation-delay: 3s; }
+    .bubble:nth-child(6) { width: 25px; height: 25px; left: 88%; top: 75%; animation-delay: 1.5s; }
+    .bubble:nth-child(7) { width: 18px; height: 18px; left: 45%; top: 5%; animation-delay: 2.5s; }
+    .bubble:nth-child(8) { width: 32px; height: 32px; left: 50%; top: 85%; animation-delay: 4s; }
+    .balloon {
+      position: absolute;
+      font-size: 1.8rem;
+      opacity: 0.85;
+      animation: float 5s ease-in-out infinite;
+    }
+    .balloon:nth-child(9) { left: 3%; top: 25%; animation-delay: 0.2s; }
+    .balloon:nth-child(10) { left: 92%; top: 35%; animation-delay: 1.2s; }
+    .balloon:nth-child(11) { left: 90%; top: 60%; animation-delay: 2.2s; }
+    .balloon:nth-child(12) { left: 6%; top: 70%; animation-delay: 0.8s; }
+    .balloon:nth-child(13) { left: 50%; top: 2%; animation-delay: 3s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.02); }
+    }
   </style>
 </head>
 <body>
+  <div class="decorations" aria-hidden="true">
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+    <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+    <span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span>
+  </div>
+  <div class="deco-wrap">
   <div id="connect" class="screen active">
     <h1>Womb with a View — Host</h1>
     <p class="waiting">Setting up your game…</p>
@@ -166,6 +204,7 @@
     <h2>Final scores (Part 3 — most points wins)</h2>
     <ul class="answers-list" id="part3Scores"></ul>
     <button id="btnBackLobby" class="secondary">Back to lobby</button>
+  </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
