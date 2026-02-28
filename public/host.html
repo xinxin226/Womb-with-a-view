@@ -267,7 +267,11 @@
 
   <div id="part3Review" class="screen">
     <div class="game-card">
-      <h1>Part 3: Select correct answers</h1>
+      <h1>Part 3: Select correct answers <span id="part3ReviewNum"></span></h1>
+      <div class="part3-img-wrap">
+        <img id="part3ReviewImg" src="" alt="Revealed answer" />
+        <div class="part3-overlay revealed" id="part3ReviewOverlay"></div>
+      </div>
       <p class="host-hint">Check each answer that is correct (or close). Those players get 1 point. Then tap Award — the next image will show automatically.</p>
       <ul class="answers-list" id="part3Answers"></ul>
       <button id="btnPart3Award">Award points to selected</button>
@@ -363,6 +367,15 @@
         const t = timeLeft(state.part3?.startedAt);
         document.getElementById('part3Timer').textContent = t > 0 ? 'Time left: ' + t + 's (or until everyone answers)' : 'Time\'s up.';
         if (isReview) {
+          document.getElementById('part3ReviewNum').textContent = `(${idx} of ${total})`;
+          if (img) document.getElementById('part3ReviewImg').src = '/images/' + img;
+          const reviewOverlay = document.getElementById('part3ReviewOverlay');
+          if (ov && reviewOverlay) {
+            reviewOverlay.style.left = ov.left + '%';
+            reviewOverlay.style.top = ov.top + '%';
+            reviewOverlay.style.width = ov.width + '%';
+            reviewOverlay.style.height = ov.height + '%';
+          }
           const ul = document.getElementById('part3Answers');
           const answers = state.part3?.answers || [];
           const correctIds = new Set(state.part3?.correctPlayerIds || []);
