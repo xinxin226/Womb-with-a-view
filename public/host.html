@@ -18,6 +18,7 @@
       --muted: #5a7a72;
       --forest: #1e4d3d;
       --heart: #e8b4a0;
+      --border: rgba(45, 90, 74, 0.2);
     }
     * { box-sizing: border-box; }
     body {
@@ -27,18 +28,46 @@
       margin: 0;
       min-height: 100vh;
       padding: 1rem;
+      position: relative;
+    }
+    .pattern-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image: radial-gradient(circle at 50% 50%, rgba(184, 212, 200, 0.4) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-repeat: repeat;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(232, 245, 233, 0.75);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: -1;
     }
     .screen { display: none; }
     .screen.active { display: block; }
+    .game-card {
+      background: rgba(250, 250, 248, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 0 auto 1rem;
+      max-width: 28rem;
+    }
     h1 { font-size: 1.4rem; color: var(--text); margin: 0 0 1rem; font-weight: 700; }
     h2 { font-size: 1.1rem; color: var(--muted); margin: 0 0 0.5rem; font-weight: 600; }
     .code-box {
-      background: var(--card);
+      background: rgba(184, 212, 200, 0.2);
       padding: 1.5rem;
-      border-radius: 20px;
+      border-radius: 1rem;
       text-align: center;
       margin: 1rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
     }
     .code-box p { color: var(--muted); margin: 0; font-size: 0.95rem; }
     button, .btn {
@@ -47,14 +76,17 @@
       color: #fff;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 16px;
+      min-height: 2.75rem;
+      border-radius: 0.75rem;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       margin: 0.25rem;
       font-family: inherit;
-      box-shadow: 0 4px 12px rgba(45, 90, 74, 0.3);
+      box-shadow: 0 4px 14px rgba(45, 90, 74, 0.35);
+      transition: box-shadow 0.2s;
     }
+    button:hover:not(:disabled), .btn:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(45, 90, 74, 0.4); }
     button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     button.secondary { background: var(--card); color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
     .creature-img { width: 100%; max-width: 400px; border-radius: 20px; margin: 1rem auto; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -103,10 +135,14 @@
       opacity: 0.9;
     }
     .deco-elephant svg { width: 100%; height: 100%; display: block; }
-    .deco-wrap { border: 3px solid var(--forest); border-radius: 20px; padding: 0.5rem; }
+    .deco-wrap { position: relative; z-index: 1; min-height: 100vh; padding-bottom: 6rem; }
+    @keyframes float { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
+    .deco-elephant { animation: float 4s ease-in-out infinite; }
   </style>
 </head>
 <body>
+  <div class="pattern-bg" aria-hidden="true"></div>
+  <div class="overlay" aria-hidden="true"></div>
   <div class="decorations" aria-hidden="true">
     <div class="deco-elephant">
       <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg">
@@ -128,80 +164,98 @@
   </div>
   <div class="deco-wrap">
   <div id="connect" class="screen active">
-    <h1>Womb with a View — Host</h1>
-    <p class="waiting">Setting up your game…</p>
+    <div class="game-card">
+      <h1>Womb with a View — Host</h1>
+      <p class="waiting">Setting up your game…</p>
+    </div>
   </div>
 
   <div id="lobby" class="screen">
-    <h1>Game ready</h1>
-    <div class="code-box">
-      <p>Players open this site on their phones and enter their name. No code needed.</p>
+    <div class="game-card">
+      <h1>Game ready</h1>
+      <div class="code-box">
+        <p>Players open this site on their phones and enter their name. No code needed.</p>
+      </div>
+      <h2 class="section-label">Who's in the game</h2>
+      <ul class="players-names" id="lobbyPlayers"></ul>
+      <p class="players-list">Players joined: <span id="playerCount">0</span></p>
+      <button id="btnStartPart1">Start game</button>
+      <button id="btnResetLobby" class="secondary">Reset to lobby</button>
     </div>
-    <h2 class="section-label">Who's in the game</h2>
-    <ul class="players-names" id="lobbyPlayers"></ul>
-    <p class="players-list">Players joined: <span id="playerCount">0</span></p>
-    <button id="btnStartPart1">Start game</button>
-    <button id="btnResetLobby" class="secondary">Reset to lobby</button>
   </div>
 
   <div id="part1" class="screen">
-    <h1>Part 1: What kind of creature are we parenting?</h1>
-    <img class="creature-img" src="/images/image9.png" alt="Ultrasound" />
-    <p class="timer" id="part1Timer"></p>
-    <p class="host-hint">Participants type their guess on their phones. Round ends after 30s or when everyone has answered — then everyone sees all answers. No points.</p>
-    <button id="btnClosePart1" class="secondary">End round early</button>
-    <div class="reset-row"><button id="btnResetPart1" class="secondary">Reset to lobby</button></div>
+    <div class="game-card">
+      <h1>Part 1: What kind of creature are we parenting?</h1>
+      <img class="creature-img" src="/images/image9.png" alt="Ultrasound" />
+      <p class="timer" id="part1Timer"></p>
+      <p class="host-hint">Participants type their guess on their phones. Round ends after 30s or when everyone has answered — then everyone sees all answers. No points.</p>
+      <button id="btnClosePart1" class="secondary">End round early</button>
+      <div class="reset-row"><button id="btnResetPart1" class="secondary">Reset to lobby</button></div>
+    </div>
   </div>
 
   <div id="part1Results" class="screen">
-    <h1>Part 1: What kind of creature are we parenting?</h1>
-    <h2>Everyone's answers</h2>
-    <ul class="answers-list" id="part1Answers"></ul>
-    <button id="btnToPart2">Continue to Part 2</button>
-    <div class="reset-row"><button id="btnResetPart1Results" class="secondary">Reset to lobby</button></div>
+    <div class="game-card">
+      <h1>Part 1: What kind of creature are we parenting?</h1>
+      <h2>Everyone's answers</h2>
+      <ul class="answers-list" id="part1Answers"></ul>
+      <button id="btnToPart2">Continue to Part 2</button>
+      <div class="reset-row"><button id="btnResetPart1Results" class="secondary">Reset to lobby</button></div>
+    </div>
   </div>
 
   <div id="part2" class="screen">
-    <h1>Part 2: Who NOSE the nose?</h1>
-    <p class="timer" id="part2Timer"></p>
-    <p class="host-hint">Participants pick A, B, C, or D on their phones. Round ends after 30s or when everyone has answered — then everyone sees how many picked each option. No points.</p>
-    <button id="btnClosePart2" class="secondary">End round early</button>
-    <div class="reset-row"><button id="btnResetPart2" class="secondary">Reset to lobby</button></div>
+    <div class="game-card">
+      <h1>Part 2: Who NOSE the nose?</h1>
+      <p class="timer" id="part2Timer"></p>
+      <p class="host-hint">Participants pick A, B, C, or D on their phones. Round ends after 30s or when everyone has answered — then everyone sees how many picked each option. No points.</p>
+      <button id="btnClosePart2" class="secondary">End round early</button>
+      <div class="reset-row"><button id="btnResetPart2" class="secondary">Reset to lobby</button></div>
+    </div>
   </div>
 
   <div id="part2Results" class="screen">
-    <h1>Part 2: Who NOSE the nose?</h1>
-    <h2>Results</h2>
-    <div class="bar-chart" id="part2Chart"></div>
-    <button id="btnToPart3">Continue to Part 3</button>
-    <div class="reset-row"><button id="btnResetPart2Results" class="secondary">Reset to lobby</button></div>
+    <div class="game-card">
+      <h1>Part 2: Who NOSE the nose?</h1>
+      <h2>Results</h2>
+      <div class="bar-chart" id="part2Chart"></div>
+      <button id="btnToPart3">Continue to Part 3</button>
+      <div class="reset-row"><button id="btnResetPart2Results" class="secondary">Reset to lobby</button></div>
+    </div>
   </div>
 
   <div id="part3" class="screen">
-    <h1>Part 3: What in the womb is this? <span id="part3Num"></span></h1>
-    <div class="part3-img-wrap">
-      <img id="part3Img" src="" alt="Womb" />
-      <div class="part3-overlay" id="part3Overlay"></div>
+    <div class="game-card">
+      <h1>Part 3: What in the womb is this? <span id="part3Num"></span></h1>
+      <div class="part3-img-wrap">
+        <img id="part3Img" src="" alt="Womb" />
+        <div class="part3-overlay" id="part3Overlay"></div>
+      </div>
+      <p class="timer" id="part3Timer"></p>
+      <p class="host-hint">Participants guess the body part. Round ends after 30s or when everyone has answered — then everyone sees all answers. You select the closest answers and award 1 point each. Next image loads after you award.</p>
+      <button id="btnClosePart3" class="secondary">End round early</button>
+      <div class="reset-row"><button id="btnResetPart3" class="secondary">Reset to lobby</button></div>
     </div>
-    <p class="timer" id="part3Timer"></p>
-    <p class="host-hint">Participants guess the body part. Round ends after 30s or when everyone has answered — then everyone sees all answers. You select the closest answers and award 1 point each. Next image loads after you award.</p>
-    <button id="btnClosePart3" class="secondary">End round early</button>
-    <div class="reset-row"><button id="btnResetPart3" class="secondary">Reset to lobby</button></div>
   </div>
 
   <div id="part3Review" class="screen">
-    <h1>Part 3: Select correct answers</h1>
-    <p class="host-hint">Check each answer that is correct (or close). Those players get 1 point. Then tap Award — the next image will show automatically.</p>
-    <ul class="answers-list" id="part3Answers"></ul>
-    <button id="btnPart3Award">Award points to selected</button>
-    <div class="reset-row"><button id="btnResetPart3Review" class="secondary">Reset to lobby</button></div>
+    <div class="game-card">
+      <h1>Part 3: Select correct answers</h1>
+      <p class="host-hint">Check each answer that is correct (or close). Those players get 1 point. Then tap Award — the next image will show automatically.</p>
+      <ul class="answers-list" id="part3Answers"></ul>
+      <button id="btnPart3Award">Award points to selected</button>
+      <div class="reset-row"><button id="btnResetPart3Review" class="secondary">Reset to lobby</button></div>
+    </div>
   </div>
 
   <div id="part3Results" class="screen">
-    <h1>Part 3 complete</h1>
-    <h2>Final scores (Part 3 — most points wins)</h2>
-    <ul class="answers-list" id="part3Scores"></ul>
-    <button id="btnBackLobby" class="secondary">Back to lobby</button>
+    <div class="game-card">
+      <h1>Part 3 complete</h1>
+      <h2>Final scores (Part 3 — most points wins)</h2>
+      <ul class="answers-list" id="part3Scores"></ul>
+      <button id="btnBackLobby" class="secondary">Back to lobby</button>
+    </div>
   </div>
   </div>
 
