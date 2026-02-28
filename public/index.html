@@ -343,6 +343,7 @@
     const socket = io();
     let state = {};
     let selectedPart2 = null;
+    let lastPart3ImageIndex = -1;
 
     function setConnectionStatus(status, text) {
       const el = document.getElementById('connectionStatus');
@@ -500,7 +501,11 @@
         const t3 = timeLeft(state.part3?.startedAt);
         document.getElementById('part3Timer').textContent = t3 > 0 ? 'Time left: ' + t3 + 's' : 'Time\'s up.';
         document.getElementById('part3Input').disabled = closed;
-        document.getElementById('part3Input').value = state.part3?.myText ?? '';
+        const currentImageIndex = state.part3?.imageIndex ?? 0;
+        if (currentImageIndex !== lastPart3ImageIndex) {
+          lastPart3ImageIndex = currentImageIndex;
+          document.getElementById('part3Input').value = '';
+        }
         document.getElementById('part3Revealed').style.display = state.part3?.revealed ? 'block' : 'none';
         document.getElementById('myPoints').style.display = 'block';
         document.getElementById('myPoints').textContent = 'Your points: ' + (state.myPoints || 0);
