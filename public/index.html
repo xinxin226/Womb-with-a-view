@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#fff5f8" />
+  <meta name="theme-color" content="#e8f5e9" />
   <title>Womb with a View</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #fff5f8;
-      --card: #ffffff;
-      --accent: #e8a0b8;
-      --accent-soft: #f5d4de;
-      --text: #3d2c33;
-      --muted: #8b7a80;
+      --bg: #e8f5e9;
+      --card: #fafaf8;
+      --accent: #2d5a4a;
+      --accent-soft: #b8d4c8;
+      --text: #1a3d3d;
+      --muted: #5a7a72;
+      --forest: #1e4d3d;
+      --heart: #e8b4a0;
     }
     * { box-sizing: border-box; }
     body {
@@ -56,7 +58,7 @@
       cursor: pointer;
       margin: 0.5rem 0;
       font-family: inherit;
-      box-shadow: 0 4px 12px rgba(232, 160, 184, 0.35);
+      box-shadow: 0 4px 12px rgba(45, 90, 74, 0.3);
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     .options-grid { display: grid; gap: 0.75rem; margin: 1rem 0; }
@@ -77,7 +79,7 @@
     .submitted-msg { color: var(--accent); font-size: 0.9rem; margin: 0.5rem 0; font-weight: 600; }
     .hint { color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
     .connection-status { font-size: 0.9rem; margin: 0.5rem 0; padding: 0.75rem; border-radius: 16px; }
-    .connection-status.connected { background: rgba(126, 184, 160, 0.2); color: #2d6a54; }
+    .connection-status.connected { background: rgba(184, 212, 200, 0.5); color: var(--forest); }
     .connection-status.disconnected { background: rgba(200,100,100,0.15); color: #a04040; }
     .connection-status.connecting { color: var(--muted); }
     .answers-list { list-style: none; padding: 0; margin: 1rem 0; }
@@ -106,8 +108,8 @@
     .bubble {
       position: absolute;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(232,160,184,0.25));
-      border: 1px solid rgba(255,255,255,0.5);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75), rgba(184,212,200,0.4));
+      border: 1px solid rgba(255,255,255,0.6);
       animation: float 6s ease-in-out infinite;
     }
     .bubble:nth-child(1) { width: 40px; height: 40px; left: 8%; top: 12%; animation-delay: 0s; }
@@ -129,6 +131,28 @@
     .balloon:nth-child(11) { left: 90%; top: 60%; animation-delay: 2.2s; }
     .balloon:nth-child(12) { left: 6%; top: 70%; animation-delay: 0.8s; }
     .balloon:nth-child(13) { left: 50%; top: 2%; animation-delay: 3s; }
+    .deco-animal {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0.7;
+      animation: float 7s ease-in-out infinite;
+    }
+    .deco-animal:nth-child(14) { left: 15%; top: 18%; animation-delay: 0.5s; }
+    .deco-animal:nth-child(15) { left: 82%; top: 22%; animation-delay: 1.5s; }
+    .deco-animal:nth-child(16) { left: 78%; top: 72%; animation-delay: 2.5s; }
+    .deco-animal:nth-child(17) { left: 8%; top: 68%; animation-delay: 0.8s; }
+    .deco-animal:nth-child(18) { left: 48%; top: 88%; animation-delay: 3.5s; }
+    .deco-heart {
+      position: absolute;
+      font-size: 1rem;
+      opacity: 0.6;
+      color: var(--heart);
+      animation: float 5.5s ease-in-out infinite;
+    }
+    .deco-heart:nth-child(19) { left: 25%; top: 10%; animation-delay: 1s; }
+    .deco-heart:nth-child(20) { left: 70%; top: 50%; animation-delay: 2s; }
+    .deco-heart:nth-child(21) { left: 18%; top: 82%; animation-delay: 0.3s; }
+    .deco-wrap { border: 3px solid var(--forest); border-radius: 20px; padding: 0.5rem; }
     @keyframes float {
       0%, 100% { transform: translateY(0) scale(1); }
       50% { transform: translateY(-12px) scale(1.02); }
@@ -140,6 +164,8 @@
     <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
     <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
     <span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span><span class="balloon">🎈</span>
+    <span class="deco-animal">🦁</span><span class="deco-animal">🦩</span><span class="deco-animal">🐘</span><span class="deco-animal">🦓</span><span class="deco-animal">🐵</span>
+    <span class="deco-heart">♥</span><span class="deco-heart">♥</span><span class="deco-heart">♥</span>
   </div>
   <div class="deco-wrap">
   <div id="join" class="screen active">
